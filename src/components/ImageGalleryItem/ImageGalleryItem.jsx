@@ -3,7 +3,7 @@ import css from '../ImageGalleryItem/ImageGalleryItem.module.css';
 
 export class ImageGalleryItem extends Component {
   render() {
-    const { id, smallFormat, largeFormat } = this.props;
+    const { id, smallFormat } = this.props;
     return (
       <li className={css.imageGalleryItem}>
         <img
