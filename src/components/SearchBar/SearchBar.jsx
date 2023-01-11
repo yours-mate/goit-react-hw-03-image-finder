@@ -14,14 +14,12 @@ export class SearchBar extends Component {
 
   handleFormSubmit = e => {
     e.preventDefault();
-
     if (this.state.query.trim() === '') {
-      toast.warning('Enter image name');
+      toast.warning('Enter search query');
       return;
     }
     this.props.onSubmit(this.state.query);
     this.setState({ query: '' });
-
     e.target.reset();
   };
 
