@@ -62,6 +62,7 @@ export class ImageGallery extends Component {
               smallFormat={image.webformatURL}
               largeFormat={image.largeImageURL}
               key={image.id}
+              handleModal={this.props.handleModal}
             />
           );
         })}

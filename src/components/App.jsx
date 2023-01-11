@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { Modal } from './Modal/Modal';
 import { SearchBar } from './SearchBar/SearchBar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
@@ -12,6 +13,11 @@ export class App extends Component {
     query: '',
     imagesQuantity: 0,
     status: '',
+    showModal: false,
+    modalContent: {
+      src: '',
+      alt: '',
+    },
   };
 
   onFormSubmit = query => {
@@ -32,6 +38,16 @@ export class App extends Component {
     this.setState({ status: statusValue });
   };
 
+  handleModal = (src, alt) => {
+    this.setState(prevState => ({
+      showModal: !prevState.showModal,
+      modalContent: {
+        src,
+        alt,
+      },
+    }));
+  };
+
   render() {
     return (
       <div
@@ -42,12 +58,21 @@ export class App extends Component {
           paddingBottom: 24,
         }}
       >
+        {this.state.showModal && (
+          <Modal handleModal={this.handleModal}>
+            <img
+              src={this.state.modalContent.src}
+              alt={this.state.modalContent.alt}
+            />
+          </Modal>
+        )}
         <SearchBar onSubmit={this.onFormSubmit} />
         <ImageGallery
           query={this.state.query}
           page={this.state.page}
           onFetchImages={this.onFetchImages}
           handleStatus={this.handleStatus}
+          handleModal={this.handleModal}
         />
         {this.state.status === 'pending' && <Loader />}
 
