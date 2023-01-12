@@ -1,12 +1,9 @@
 import { RotatingLines } from 'react-loader-spinner';
+import css from '../Loader/Loader.module.css';
 
 export function Loader() {
   return (
-    <div
-      style={{
-        textAlign: 'center',
-      }}
-    >
+    <div className={css.loader}>
       <RotatingLines
         strokeColor="grey"
         strokeWidth="5"

@@ -1,7 +1,8 @@
 import { Component } from 'react';
-import css from '../SearchBar/SearchBar.module.css';
-import { FcSearch } from 'react-icons/fc';
 import { toast } from 'react-toastify';
+import { FcSearch } from 'react-icons/fc';
+import css from '../SearchBar/SearchBar.module.css';
+import PropTypes from 'prop-types';
 
 export class SearchBar extends Component {
   state = {
@@ -14,11 +15,12 @@ export class SearchBar extends Component {
 
   handleFormSubmit = e => {
     e.preventDefault();
-    if (this.state.query.trim() === '') {
+    const { query } = this.state;
+    if (query.trim() === '') {
       toast.warning('Enter search query');
       return;
     }
-    this.props.onSubmit(this.state.query);
+    this.props.onSubmit(query);
     this.setState({ query: '' });
     e.target.reset();
   };
@@ -44,3 +46,7 @@ export class SearchBar extends Component {
     );
   }
 }
+
+SearchBar.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};

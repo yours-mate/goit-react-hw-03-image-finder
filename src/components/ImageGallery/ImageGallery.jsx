@@ -2,6 +2,7 @@ import { Component } from 'react';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 import { toast } from 'react-toastify';
 import css from '../ImageGallery/ImageGallery.module.css';
+import PropTypes from 'prop-types';
 
 const BASE_URL = 'https://pixabay.com/api/';
 const perPage = 12;
@@ -13,13 +14,13 @@ export class ImageGallery extends Component {
     error: null,
   };
   componentDidUpdate(prevProps, prevState) {
-    if (
-      prevProps.query !== this.props.query ||
-      prevProps.page !== this.props.page
-    ) {
-      this.props.handleStatus('pending');
+    const { query, page, onFetchImages, handleStatus } = this.props;
+    const prevQuery = prevProps.query;
+    const prevPage = prevProps.page;
+    if (prevQuery !== query || prevPage !== page) {
+      handleStatus('pending');
       fetch(
-        `${BASE_URL}?q=${this.props.query}&key=${fetchKey}&image_type=photo&orientation=horizontal&per_page=${perPage}&page=${this.props.page}`
+        `${BASE_URL}?q=${query}&key=${fetchKey}&image_type=photo&orientation=horizontal&per_page=${perPage}&page=${page}`
       )
         .then(response => {
           if (response.ok) {
@@ -31,38 +32,39 @@ export class ImageGallery extends Component {
         })
         .then(images => {
           if (images.hits.length === 0) {
-            toast.error(`There are no images with query ${this.props.query}`);
+            toast.error(`There are no images with query ${query}`);
             this.setState({ images: [] });
-            this.props.onFetchImages(0);
+            onFetchImages(0);
             return;
           }
-          if (prevProps.query !== this.props.query) {
+          if (prevQuery !== query) {
             this.setState({ images: images.hits });
-            this.props.onFetchImages(images.totalHits);
+            onFetchImages(images.totalHits);
             return;
           }
           this.setState(prevState => ({
             images: [...prevState.images, ...images.hits],
           }));
-          this.props.onFetchImages(images.totalHits);
+          onFetchImages(images.totalHits);
         })
         .catch(error => this.setState({ error }))
-        .finally(() => this.props.handleStatus('resolved'));
+        .finally(() => handleStatus('resolved'));
     }
   }
   render() {
     const { images, error } = this.state;
+    const { handleModal } = this.props;
     return (
       <ul className={css.imageGallery}>
         {this.state.error && error.message}
         {images.map(image => {
           return (
             <ImageGalleryItem
-              id={image.id}
               smallFormat={image.webformatURL}
               largeFormat={image.largeImageURL}
+              alt={image.tags}
+              handleModal={handleModal}
               key={image.id}
-              handleModal={this.props.handleModal}
             />
           );
         })}
@@ -70,3 +72,11 @@ export class ImageGallery extends Component {
     );
   }
 }
+
+ImageGallery.propTypes = {
+  query: PropTypes.string.isRequired,
+  page: PropTypes.number.isRequired,
+  onFetchImages: PropTypes.func.isRequired,
+  handleStatus: PropTypes.func.isRequired,
+  handleModal: PropTypes.func.isRequired,
+};

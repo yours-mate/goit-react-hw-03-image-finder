@@ -49,6 +49,8 @@ export class App extends Component {
   };
 
   render() {
+    const { page, query, imagesQuantity, status, showModal, modalContent } =
+      this.state;
     return (
       <div
         style={{
@@ -58,27 +60,21 @@ export class App extends Component {
           paddingBottom: 24,
         }}
       >
-        {this.state.showModal && (
+        {showModal && (
           <Modal handleModal={this.handleModal}>
-            <img
-              src={this.state.modalContent.src}
-              alt={this.state.modalContent.alt}
-            />
+            <img src={modalContent.src} alt={modalContent.alt} />
           </Modal>
         )}
         <SearchBar onSubmit={this.onFormSubmit} />
         <ImageGallery
-          query={this.state.query}
-          page={this.state.page}
+          query={query}
+          page={page}
           onFetchImages={this.onFetchImages}
           handleStatus={this.handleStatus}
           handleModal={this.handleModal}
         />
-        {this.state.status === 'pending' && <Loader />}
-
-        {this.state.imagesQuantity > 12 && (
-          <Button onLoadMore={this.onLoadMore} />
-        )}
+        {status === 'pending' && <Loader />}
+        {imagesQuantity > 12 && <Button onLoadMore={this.onLoadMore} />}
         <ToastContainer />
       </div>
     );
