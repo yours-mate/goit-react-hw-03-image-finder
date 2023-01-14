@@ -1,14 +1,16 @@
 import { Component } from 'react';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
+import { FetchImages } from './FetchImages';
 import { toast } from 'react-toastify';
 import css from '../ImageGallery/ImageGallery.module.css';
 import PropTypes from 'prop-types';
 
-const BASE_URL = 'https://pixabay.com/api/';
-const perPage = 12;
-const fetchKey = '31291056-02b52945dcd563b074a1c7cbe';
-
 export class ImageGallery extends Component {
+  static defaultProps = {
+    page: 1,
+    query: '',
+  };
+
   state = {
     images: [],
     error: null,
@@ -17,58 +19,63 @@ export class ImageGallery extends Component {
     const { query, page, onFetchImages, handleStatus } = this.props;
     const prevQuery = prevProps.query;
     const prevPage = prevProps.page;
+    if (prevQuery !== query) {
+      this.setState({ images: [] });
+    }
     if (prevQuery !== query || prevPage !== page) {
       handleStatus('pending');
-      fetch(
-        `${BASE_URL}?q=${query}&key=${fetchKey}&image_type=photo&orientation=horizontal&per_page=${perPage}&page=${page}`
-      )
-        .then(response => {
-          if (response.ok) {
-            return response.json();
-          }
-          return Promise.reject(
-            new Error(`An error occured. Please try again`)
-          );
-        })
+      FetchImages(query, page)
         .then(images => {
-          if (images.hits.length === 0) {
+          const sortedImages = images.hits.map(image => ({
+            id: image.id,
+            webformatURL: image.webformatURL,
+            largeImageURL: image.largeImageURL,
+            tags: image.tags,
+          }));
+          if (sortedImages.length === 0) {
             toast.error(`There are no images with query ${query}`);
             this.setState({ images: [] });
             onFetchImages(0);
+            handleStatus('idle');
             return;
           }
           if (prevQuery !== query) {
-            this.setState({ images: images.hits });
+            this.setState({ images: sortedImages });
             onFetchImages(images.totalHits);
+            handleStatus('resolved');
             return;
           }
           this.setState(prevState => ({
-            images: [...prevState.images, ...images.hits],
+            images: [...prevState.images, ...sortedImages],
           }));
           onFetchImages(images.totalHits);
+          handleStatus('resolved');
         })
-        .catch(error => this.setState({ error }))
-        .finally(() => handleStatus('resolved'));
+        .catch(error => this.setState({ error }));
     }
   }
   render() {
     const { images, error } = this.state;
     const { handleModal } = this.props;
     return (
-      <ul className={css.imageGallery}>
-        {this.state.error && error.message}
-        {images.map(image => {
-          return (
-            <ImageGalleryItem
-              smallFormat={image.webformatURL}
-              largeFormat={image.largeImageURL}
-              alt={image.tags}
-              handleModal={handleModal}
-              key={image.id}
-            />
-          );
-        })}
-      </ul>
+      <div>
+        {images.length > 0 && (
+          <ul className={css.imageGallery}>
+            {this.state.error && error.message}
+            {images.map(({ webformatURL, largeImageURL, tags, id }) => {
+              return (
+                <ImageGalleryItem
+                  smallFormat={webformatURL}
+                  largeFormat={largeImageURL}
+                  alt={tags}
+                  handleModal={handleModal}
+                  key={id}
+                />
+              );
+            })}
+          </ul>
+        )}
+      </div>
     );
   }
 }

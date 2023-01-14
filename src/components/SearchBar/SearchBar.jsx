@@ -14,13 +14,14 @@ export class SearchBar extends Component {
   };
 
   handleFormSubmit = e => {
+    const { onSubmit } = this.props;
     e.preventDefault();
     const { query } = this.state;
     if (query.trim() === '') {
       toast.warning('Enter search query');
       return;
     }
-    this.props.onSubmit(query);
+    onSubmit(query);
     this.setState({ query: '' });
     e.target.reset();
   };

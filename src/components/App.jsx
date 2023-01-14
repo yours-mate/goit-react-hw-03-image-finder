@@ -12,7 +12,7 @@ export class App extends Component {
     page: 1,
     query: '',
     imagesQuantity: 0,
-    status: '',
+    status: 'idle',
     showModal: false,
     modalContent: {
       src: '',
@@ -74,7 +74,9 @@ export class App extends Component {
           handleModal={this.handleModal}
         />
         {status === 'pending' && <Loader />}
-        {imagesQuantity > 12 && <Button onLoadMore={this.onLoadMore} />}
+        {imagesQuantity > 12 && status === 'resolved' && (
+          <Button onLoadMore={this.onLoadMore} />
+        )}
         <ToastContainer />
       </div>
     );

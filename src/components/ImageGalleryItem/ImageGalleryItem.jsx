@@ -3,6 +3,12 @@ import css from '../ImageGalleryItem/ImageGalleryItem.module.css';
 import PropTypes from 'prop-types';
 
 export class ImageGalleryItem extends Component {
+  static defaultProps = {
+    id: '',
+    tags: '',
+    smallFormat: '',
+    largeFormat: '',
+  };
   render() {
     const { smallFormat, largeFormat, alt, handleModal } = this.props;
     return (
